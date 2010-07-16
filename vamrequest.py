@@ -20,7 +20,7 @@ try:
 	else:
 		lat = float(form.getfirst("lat", "0"))
 		lon = float(form.getfirst("lon", "0"))
-		url = "http://www.vam.ac.uk/api/json/museumobject/search?latitude=%.6f&longitude=%.6f&radius=50"%(lat, lon)
+		url = "http://www.vam.ac.uk/api/json/museumobject/search?latitude=%.6f&longitude=%.6f&radius=50&orderby=distance"%(lat, lon)
 
 	data = urlopen(url)
 	print data.read()
