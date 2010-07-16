@@ -47,7 +47,7 @@ window.onload = function() {
 								if(req2.status == 200)
 								{
 									 var jso2 = JSON.parse(req2.responseText);
-									 var long_name = jso2[0].fields.descriptive_line;
+									 var long_name = jso2[0].fields.bibliography;
 									 var obj_lat = parseFloat(jso2[0].fields.places[0].fields.latitude);
 									 var obj_lon = parseFloat(jso2[0].fields.places[0].fields.longitude);
 									 var distance = longLatDistance(position.coords.latitude, position.coords.longitude, obj_lat, obj_lon);
