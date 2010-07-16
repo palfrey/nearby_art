@@ -38,27 +38,34 @@ window.onload = function() {
 						 var res = jso.records[0];
 						 var imgurl = "http://media.vam.ac.uk/media/thira/collection_images/"+res.fields.primary_image_id.substring(0,6)+"/"+res.fields.primary_image_id+".jpg"
 
-						 var detailed_object = "vamrequest.py?obj=1&id="+res.fields.object_number;
-						 textHere.innerHTML = "Found nearby art, requesting more details...";
-						 var req2 = new XMLHttpRequest();
-						 req2.open('GET', detailed_object, true);
-						 req2.onreadystatechange = function (aEvt) {
-							if (req2.readyState == 4) {
-								if(req2.status == 200)
-								{
-									 var jso2 = JSON.parse(req2.responseText);
-									 var long_name = jso2[0].fields.bibliography;
-									 var obj_lat = parseFloat(jso2[0].fields.places[0].fields.latitude);
-									 var obj_lon = parseFloat(jso2[0].fields.places[0].fields.longitude);
-									 var distance = longLatDistance(position.coords.latitude, position.coords.longitude, obj_lat, obj_lon);
+						 if (res.fields.object_number == "")
+						 {
+							 textHere.innerHTML = "Can't find an object number. Here's the response from V&A, please mail this to nearby-art@tevp.net.<br/>"+req.responseText;
+					 	 }
+						 else
+						 {
+							 var detailed_object = "vamrequest.py?obj=1&id="+res.fields.object_number;
+							 textHere.innerHTML = "Found nearby art, requesting more details...";
+							 var req2 = new XMLHttpRequest();
+							 req2.open('GET', detailed_object, true);
+							 req2.onreadystatechange = function (aEvt) {
+								if (req2.readyState == 4) {
+									if(req2.status == 200)
+									{
+										 var jso2 = JSON.parse(req2.responseText);
+										 var long_name = jso2[0].fields.bibliography;
+										 var obj_lat = parseFloat(jso2[0].fields.places[0].fields.latitude);
+										 var obj_lon = parseFloat(jso2[0].fields.places[0].fields.longitude);
+										 var distance = longLatDistance(position.coords.latitude, position.coords.longitude, obj_lat, obj_lon);
 
-									 textHere.innerHTML = "Nearest object is "+distance+" km away and is:<br/>"+ long_name + "<br /><a href=\"http://collections.vam.ac.uk/item/"+res.fields.object_number+"\">More info</a><br/><img src=\""+imgurl+"\" />";
+										 textHere.innerHTML = "Nearest object is "+distance+" km away and is:<br/>"+ long_name + "<br /><a href=\"http://collections.vam.ac.uk/item/"+res.fields.object_number+"\">More info</a><br/><img src=\""+imgurl+"\" />";
+									}
+									else
+										textHere.innerHTML = "Error loading details";
 								}
-								else
-									textHere.innerHTML = "Error loading details";
-							}
-						};
-						req2.send(null);
+							};
+							req2.send(null);
+						}
 					 }
 					 else
 					  textHere.innerHTML = "Error loading page";
