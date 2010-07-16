@@ -52,7 +52,7 @@ window.onload = function() {
 									 var obj_lon = parseFloat(jso2[0].fields.places[0].fields.longitude);
 									 var distance = longLatDistance(position.coords.latitude, position.coords.longitude, obj_lat, obj_lon);
 
-									 textHere.innerHTML = "Nearest object is "+distance+" km away and is:<br/>"+ long_name + "<br /><img src=\""+imgurl+"\" />";
+									 textHere.innerHTML = "Nearest object is "+distance+" km away and is:<br/>"+ long_name + "<br /><a href=\"http://collections.vam.ac.uk/item/"+res.fields.object_number+"\">More info</a><br/><img src=\""+imgurl+"\" />";
 								}
 								else
 									textHere.innerHTML = "Error loading details";
