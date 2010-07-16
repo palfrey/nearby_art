@@ -1,0 +1,81 @@
+<script language="javascript">
+
+if (typeof(Number.prototype.toRad) === "undefined") {
+  Number.prototype.toRad = function() {
+    return this * Math.PI / 180;
+  }
+}
+
+function longLatDistance(lat1, lon1, lat2, lon2)
+{
+	// Taken from http://www.movable-type.co.uk/scripts/latlong.html
+	// Using Haversine formula http://en.wikipedia.org/wiki/Haversine_formula
+	var R = 6371; // km
+	var dLat = (lat2-lat1).toRad();
+	var dLon = (lon2-lon1).toRad(); 
+	var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+			Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) * 
+			Math.sin(dLon/2) * Math.sin(dLon/2); 
+	var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+	var d = R * c;
+	return d;
+}
+
+window.onload = function() {  
+	var div = document.getElementById("textHere");
+	if (navigator.geolocation) {
+		navigator.geolocation.getCurrentPosition(function(position)
+			{
+				var query = "vamrequest.py?lat="+position.coords.latitude+"&lon="+position.coords.longitude;
+				textHere.innerHTML = "Looking for nearby art...";
+				var req = new XMLHttpRequest();
+				req.open('GET', query, true);
+				req.onreadystatechange = function (aEvt) {
+				  if (req.readyState == 4) {
+					 if(req.status == 200)
+					 {
+						 var jso = JSON.parse(req.responseText);
+						 var res = jso.records[0];
+						 var imgurl = "http://media.vam.ac.uk/media/thira/collection_images/"+res.fields.primary_image_id.substring(0,6)+"/"+res.fields.primary_image_id+".jpg"
+
+						 var detailed_object = "vamrequest.py?obj=1&id="+res.fields.object_number;
+						 textHere.innerHTML = "Found nearby art, requesting more details...";
+						 var req2 = new XMLHttpRequest();
+						 req2.open('GET', detailed_object, true);
+						 req2.onreadystatechange = function (aEvt) {
+							if (req2.readyState == 4) {
+								if(req2.status == 200)
+								{
+									 var jso2 = JSON.parse(req2.responseText);
+									 var long_name = jso2[0].fields.descriptive_line;
+									 var obj_lat = parseFloat(jso2[0].fields.places[0].fields.latitude);
+									 var obj_lon = parseFloat(jso2[0].fields.places[0].fields.longitude);
+									 var distance = longLatDistance(position.coords.latitude, position.coords.longitude, obj_lat, obj_lon);
+
+									 textHere.innerHTML = "Nearest object is "+distance+" km away and is:<br/>"+ long_name + "<br /><img src=\""+imgurl+"\" />";
+								}
+								else
+									textHere.innerHTML = "Error loading details";
+							}
+						};
+						req2.send(null);
+					 }
+					 else
+					  textHere.innerHTML = "Error loading page";
+				  }
+				};
+				req.send(null);
+			},	
+			function(error)
+			{
+				textHere.innerHTML = "Error getting your location";
+			},
+			{enableHighAccuracy: true}
+			);
+		}
+	else {
+		textHere.innerHTML = "No geolocation available";
+	}
+};
+</script>
+<div id="textHere"></div>
